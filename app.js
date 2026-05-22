@@ -1,4 +1,9 @@
-let habits = JSON.parse(localStorage.getItem("simpleHabits")) || [];
+let habitsString = localStorage.getItem("simpleHabits");
+let habits = [];
+if (habitsString !== null) {
+    habits = JSON.parse(habitsString);
+}
+
 let weekOffset = 0; 
 
 function formatDate(date) {
@@ -10,7 +15,13 @@ function getWeekDates() {
     today.setDate(today.getDate() + (weekOffset * 7));
 
     let currentDayOfWeek = today.getDay();
-    let distanceToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+
+    let distanceToMonday = 0;
+    if (currentDayOfWeek === 0) {
+        distanceToMonday = 6;
+    } else {
+        distanceToMonday = currentDayOfWeek - 1;
+    }
     
     let monday = new Date(today);
     monday.setDate(today.getDate() - distanceToMonday);
@@ -24,14 +35,12 @@ function getWeekDates() {
     return weekDates;
 }
 
-
 function getStreak(habit) {
     let streak = 0;
     let checkDate = new Date();
     let todayStr = formatDate(checkDate);
 
-
-    if (!habit.completedDates[todayStr]) {
+    if (habit.completedDates[todayStr] !== true) {
         checkDate.setDate(checkDate.getDate() - 1); 
     }
 
@@ -46,7 +55,6 @@ function getStreak(habit) {
     }
     return streak;
 }
-
 
 function updateUI() {
     let table = document.getElementById("habit-table");
@@ -63,18 +71,21 @@ function updateUI() {
 
     let weekDates = getWeekDates();
     let realTodayStr = formatDate(new Date()); 
-
   
     let headerHTML = "<th>Habit Name</th><th>Streak</th>";
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     
     for (let i = 0; i < 7; i++) {
         let dateStr = formatDate(weekDates[i]);
-        let isToday = (dateStr === realTodayStr) ? "class='today'" : "";
+        
+        let isToday = "";
+        if (dateStr === realTodayStr) {
+            isToday = "class='today'";
+        }
+
         headerHTML += `<th ${isToday}>${dayNames[i]}<br>${weekDates[i].getDate()}</th>`;
     }
     document.getElementById("table-header-row").innerHTML = headerHTML;
-
 
     let tbodyHTML = "";
     for (let i = 0; i < habits.length; i++) {
@@ -88,13 +99,23 @@ function updateUI() {
             </td>
             <td style="color: blue; font-weight: bold;">${streak}</td>`;
 
- 
         for (let j = 0; j < 7; j++) {
             let dateStr = formatDate(weekDates[j]);
-            let isChecked = habit.completedDates[dateStr] ? "checked" : "";
-            let isToday = (dateStr === realTodayStr) ? "class='today'" : "";
             
-            let disabled = (weekOffset > 0) ? "disabled" : "";
+            let isChecked = "";
+            if (habit.completedDates[dateStr] === true) {
+                isChecked = "checked";
+            }
+            
+            let isToday = "";
+            if (dateStr === realTodayStr) {
+                isToday = "class='today'";
+            }
+            
+            let disabled = "";
+            if (weekOffset > 0) {
+                disabled = "disabled";
+            }
 
             rowHTML += `<td ${isToday}>
                 <input type="checkbox" onchange="toggleHabit(${i}, '${dateStr}')" ${isChecked} ${disabled}>
@@ -125,7 +146,11 @@ window.deleteHabit = function(index) {
 };
 
 window.toggleHabit = function(index, dateStr) {
-    habits[index].completedDates[dateStr] = !habits[index].completedDates[dateStr];
+    if (habits[index].completedDates[dateStr] === true) {
+        habits[index].completedDates[dateStr] = false;
+    } else {
+        habits[index].completedDates[dateStr] = true;
+    }
     saveData();
 };
 
@@ -133,7 +158,7 @@ window.changeWeek = function(direction) {
     if (direction === 0) {
         weekOffset = 0; 
     } else {
-        weekOffset += direction;
+        weekOffset = weekOffset + direction; 
     }
     updateUI();
 };

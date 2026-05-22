@@ -22,14 +22,13 @@ body {
     gap: 10px;
 }
 
-/* Make the table scrollable on small phone screens */
 .table-wrapper {
     overflow-x: auto; 
 }
 
 table {
     width: 100%;
-    border-collapse: collapse; /* Removes double borders between cells */
+    border-collapse: collapse;
 }
 
 th, td {
@@ -42,13 +41,11 @@ th {
     background-color: #f8f9fa;
 }
 
-/* Styling for the first column (Habit Name) */
 td:first-child {
     text-align: left;
     font-weight: bold;
 }
 
-/* Highlight today's column */
 .today {
     background-color: #e6f2ff; 
 }
@@ -57,7 +54,6 @@ td:first-child {
     display: none;
 }
 
-/* Checkbox styling */
 input[type="checkbox"] {
     width: 18px;
     height: 18px;
